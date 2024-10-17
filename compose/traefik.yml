@@ -26,6 +26,20 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./config/traefik_dynamic.yml:/etc/traefik/traefik_dynamic.yml:ro
       - ./letsencrypt:/letsencrypt
-      - ./.env:/etc/traefik/.env
     command:
-      - "--configfile=/etc/traefik/traefik_dynamic.yml"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.file.filename=/etc/traefik/traefik_dynamic.yml"
+      - "--providers.file.watch=true"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.${FQDN}`)"
+      - "traefik.http.routers.traefik.entrypoints=websecure"
+      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.routers.traefik.middlewares=authtraefik"
+      - "traefik.http.routers.traefik.tls.certresolver=letsencrypt"
+      - "traefik.http.middlewares.authtraefik.basicauth.users=${TRAEFIK_AUTH}"
+    environment:
+      - FQDN
+      - TRAEFIK_AUTH
+      - ACME_EMAIL
