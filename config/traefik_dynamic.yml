@@ -1,0 +1,75 @@
+entryPoints:
+  web:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+  websecure:
+    address: ":443"
+
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      email: ${ACME_EMAIL}
+      storage: /letsencrypt/acme.json
+      httpChallenge:
+        entryPoint: web
+
+providers:
+  file:
+    filename: /etc/traefik/traefik_dynamic.yml
+    watch: true
+
+api:
+  dashboard: true
+  insecure: false
+
+log:
+  level: DEBUG
+
+accessLog: {}
+
+http:
+  middlewares:
+    secure-headers:
+      headers:
+        sslRedirect: true
+        forceSTSHeader: true
+        stsIncludeSubdomains: true
+        stsPreload: true
+        stsSeconds: 31536000
+    authtraefik:
+      basicAuth:
+        removeheader: true
+        realm: "traefik-dashboard"
+        users:
+          - ${TRAEFIK_AUTH}
+
+  routers:
+    pretalx:
+      rule: "Host(`${FQDN}`)"
+      entrypoints:
+        - websecure
+      service: pretalx
+      middlewares:
+        - secure-headers
+      tls:
+        certResolver: letsencrypt
+
+    traefik:
+      rule: "Host(`traefik.${FQDN}`)"
+      entrypoints:
+        - websecure
+      service: api@internal
+      middlewares:
+        - authtraefik
+      tls:
+        certResolver: letsencrypt
+
+  services:
+    pretalx:
+      loadBalancer:
+        servers:
+          - url: "http://web:80"
