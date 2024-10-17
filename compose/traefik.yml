@@ -1,13 +1,42 @@
 networks:
   web:
+    # Traefik is running in the same network as the app
+    # this network might be started before the app network
+    # so we need to explicitly set external: true
     external: true
 
 services:
   web:
     networks:
       - web
+
+  traefik:
+    image: traefik:v3.1
+    container_name: traefik
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - web
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./config/traefik_dynamic.yml:/etc/traefik/traefik_dynamic.yml:ro
+      - ./letsencrypt:/letsencrypt
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.file.filename=/etc/traefik/traefik_dynamic.yml"
+      - "--providers.file.watch=true"
     labels:
       traefik.enable: true
-      traefik.http.routers.local-localhost.rule: Host(`${FQDN}`)
-      traefik.http.routers.local-localhost.tls: true
-      traefik.http.routers.local-localhost.tls.certresolver: letsencrypt
+      # dashboard config
+      traefik.http.routers.dashboard.rule: Host(`traefik.${FQDN}`)
+      traefik.http.routers.dashboard.service: api@internal
+      traefik.http.routers.dashboard.middlewares: auth@file
+      traefik.http.middlewares.auth.basicauth.users: ${TRAEFIK_AUTH}
+    environment:
+      - TRAEFIK_AUTH=${TRAEFIK_AUTH}
