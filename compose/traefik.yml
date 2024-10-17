@@ -32,14 +32,11 @@ services:
       - "--providers.file.filename=/etc/traefik/traefik_dynamic.yml"
       - "--providers.file.watch=true"
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.traefik.rule=Host(`traefik.${FQDN}`)"
-      - "traefik.http.routers.traefik.entrypoints=websecure"
-      - "traefik.http.routers.traefik.service=api@internal"
-      - "traefik.http.routers.traefik.middlewares=authtraefik"
-      - "traefik.http.routers.traefik.tls.certresolver=letsencrypt"
-      - "traefik.http.middlewares.authtraefik.basicauth.users=${TRAEFIK_AUTH}"
+      traefik.enable: true
+      # dashboard config
+      traefik.http.routers.dashboard.rule: Host(`traefik.${FQDN}`)
+      traefik.http.routers.dashboard.service: api@internal
+      traefik.http.routers.dashboard.middlewares: auth@file
+      traefik.http.middlewares.auth.basicauth.users: ${TRAEFIK_AUTH}
     environment:
-      - FQDN
-      - TRAEFIK_AUTH
-      - ACME_EMAIL
+      - TRAEFIK_AUTH=${TRAEFIK_AUTH}
