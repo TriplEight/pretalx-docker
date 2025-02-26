@@ -5,11 +5,13 @@ volumes:
   pretalx-redis:
 
 networks:
-  pretalx:
+  pretalx-data:
+  pretalx-web:
 
 x-default: &default
   networks:
-    - pretalx
+    - pretalx-data
+    - web
   restart: unless-stopped
 
 x-healthcheck: &healthcheck
@@ -84,6 +86,11 @@ services:
   web:
     <<: *default
     image: nginx:alpine
+    labels:
+      traefik.enable: true
+      traefik.http.routers.local-localhost.rule: Host(`${FQDN}`)
+      traefik.http.routers.local-localhost.tls: true
+      traefik.http.routers.local-localhost.tls.certresolver: letsencrypt
 
     deploy:
       replicas: 1
