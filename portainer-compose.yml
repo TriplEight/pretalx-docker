@@ -11,7 +11,7 @@ networks:
 x-default: &default
   networks:
     - pretalx-data
-    - web
+    - pretalx-web
   restart: unless-stopped
 
 x-healthcheck: &healthcheck
