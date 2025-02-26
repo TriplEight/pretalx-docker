@@ -20,7 +20,13 @@ x-healthcheck: &healthcheck
 
 x-pretalx: &pretalx
   <<: *default
-  image: ${PRETALX_IMAGE}:${PRETALX_TAG}
+  image: ghcr.io/tripleight/pretalx-extended:2024.3.0-cron
+  build:
+    context: ./context/cron
+    dockerfile: Dockerfile.debian
+    args:
+      PRETALX_BASE_IMAGE: ghcr.io/tripleight/pretalx-extended
+      PRETALX_BASE_TAG: 2024.3.0
   volumes:
     - pretalx-data:/data
     - pretalx-public:/public
@@ -28,30 +34,23 @@ x-pretalx: &pretalx
     - stack.env
   environment:
     - PRETALX_LOG_LEVEL
-
     - PRETALX_DB_NAME
     - PRETALX_DB_USER
     - PRETALX_DB_PASS
-
     - PRETALX_DATA_DIR
     - PRETALX_FILESYSTEM_LOGS
-
     - PRETALX_FILESYSTEM_MEDIA
     - PRETALX_FILESYSTEM_STATIC
-
     - PRETALX_DEBUG
     - PRETALX_SITE_URL
-
     - PRETALX_SITE_CSP
     - PRETALX_SITE_CSP_STYLE
     - PRETALX_SITE_CSP_SCRIPT
     - PRETALX_SITE_CSP_IMG
     - PRETALX_SITE_CSP_FORM
-
     - PRETALX_DB_TYPE
     - PRETALX_DB_HOST
     - PRETALX_DB_PORT
-
     - PRETALX_MAIL_FROM
     - PRETALX_MAIL_HOST
     - PRETALX_MAIL_PORT
@@ -59,16 +58,12 @@ x-pretalx: &pretalx
     - PRETALX_MAIL_PASSWORD
     - PRETALX_MAIL_TLS
     - PRETALX_MAIL_SSL
-
     - PRETALX_CELERY_BACKEND
     - PRETALX_CELERY_BROKER
-
     - PRETALX_REDIS
     - PRETALX_REDIS_SESSIONS
-
     - PRETALX_LOGGING_EMAIL
     - PRETALX_LOGGING_EMAIL_LEVEL
-
     - PRETALX_LANGUAGE_CODE
     - PRETALX_TIME_ZONE
 
@@ -162,7 +157,7 @@ services:
     <<: *default
     image: docker.io/library/postgres:15-alpine
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      test: ['CMD-SHELL', 'pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}']
       start_period: 20s
       interval: 30s
       retries: 5
@@ -181,7 +176,7 @@ services:
     image: docker.io/library/redis:alpine
     command: --save 60 1 --loglevel warning
     healthcheck:
-      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      test: ['CMD-SHELL', 'redis-cli ping | grep PONG']
       <<: *healthcheck
     volumes:
       - pretalx-redis:/data
