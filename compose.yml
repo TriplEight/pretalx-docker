@@ -5,12 +5,12 @@ volumes:
   pretalx-redis:
 
 networks:
-  data:
+  pretalx-data:
 
 
 x-default: &default
   networks:
-    - data
+    - pretalx-data
   restart: unless-stopped
 
 x-healthcheck: &healthcheck

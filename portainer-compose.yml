@@ -23,12 +23,6 @@ x-healthcheck: &healthcheck
 x-pretalx: &pretalx
   <<: *default
   image: ghcr.io/tripleight/pretalx-extended:2024.3.0-cron
-  build:
-    context: ./context/cron
-    dockerfile: Dockerfile.debian
-    args:
-      PRETALX_BASE_IMAGE: ghcr.io/tripleight/pretalx-extended
-      PRETALX_BASE_TAG: 2024.3.0
   volumes:
     - pretalx-data:/data
     - pretalx-public:/public
@@ -86,6 +80,12 @@ services:
   web:
     <<: *default
     image: nginx:alpine
+    volumes:
+      - pretalx-public:/public
+      - type: bind
+        source: ./config/nginx.conf
+        target: /etc/nginx/nginx.conf
+        read_only: true
     labels:
       traefik.enable: true
       traefik.http.routers.local-localhost.rule: Host(`${FQDN}`)
@@ -102,16 +102,6 @@ services:
     depends_on:
       app:
         condition: service_healthy
-
-    volumes:
-      - type: bind
-        source: ./config/nginx.conf
-        target: /etc/nginx/nginx.conf
-        read_only: true
-        bind:
-          selinux: z
-          create_host_path: true
-      - pretalx-public:/public
 
 
   app:
