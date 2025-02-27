@@ -7,7 +7,6 @@ http:
         customRequestHeaders:
           X-Content-Type-Options: nosniff
           Referrer-Policy: same-origin
-        sslRedirect: true
         forceSTSHeader: true
         stsIncludeSubdomains: true
         stsPreload: true
