@@ -95,9 +95,8 @@ services:
       - ./config/dynamic:/etc/traefik/dynamic:ro
       - /etc/portainer/pretalx/traefik/acme.json:/etc/traefik/acme.json
     networks:
-      web:
-        aliases:
-          - pretalx_web
+      - web
+      - data
     restart: unless-stopped
     labels:
       traefik.enable: true
