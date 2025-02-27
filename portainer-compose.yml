@@ -122,7 +122,7 @@ services:
       - data
     restart: unless-stopped
     volumes:
-      - ./config/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./config/nginx-old.conf:/etc/nginx/nginx.conf:ro
       - public:/public
     deploy:
       replicas: 1
