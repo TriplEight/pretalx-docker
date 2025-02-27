@@ -1,0 +1,22 @@
+# traefik configuration
+
+http:
+  middlewares:
+    secureHeaders:
+      headers:
+        customRequestHeaders:
+          X-Content-Type-Options: nosniff
+          Referrer-Policy: same-origin
+        sslRedirect: true
+        forceSTSHeader: true
+        stsIncludeSubdomains: true
+        stsPreload: true
+        stsSeconds: 31536000
+        contentTypeNosniff: true
+        frameDeny: true
+        referrerPolicy: "strict-origin-when-cross-origin"
+        permissionsPolicy: "camera=(), microphone=(), geolocation=()"
+    rateLimit:
+      rateLimit:
+        average: 100
+        burst: 50

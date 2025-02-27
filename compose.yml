@@ -10,7 +10,7 @@ networks:
 
 x-default: &default
   networks:
-    - pretalx-data
+    - data
   restart: unless-stopped
 
 x-healthcheck: &healthcheck

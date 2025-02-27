@@ -1,17 +1,19 @@
+# Make sure to follow the steps in the README.md file to configure the environment variables
+# and the traefik configuration files before running this stack.
+
 volumes:
-  pretalx-public:
-  pretalx-data:
-  pretalx-postgres:
-  pretalx-redis:
+  public:
+  data:
+  postgres:
+  redis:
 
 networks:
-  pretalx-data:
-  pretalx-web:
+  data:
+  web:
 
 x-default: &default
   networks:
-    - pretalx-data
-    - pretalx-web
+    - data
   restart: unless-stopped
 
 x-healthcheck: &healthcheck
@@ -24,8 +26,8 @@ x-pretalx: &pretalx
   <<: *default
   image: ghcr.io/tripleight/pretalx-extended:2024.3.0-cron
   volumes:
-    - pretalx-data:/data
-    - pretalx-public:/public
+    - data:/data
+    - public:/public
   env_file:
     - stack.env
   environment:
@@ -77,36 +79,60 @@ x-pretalx-depends-on-migrations: &pretalx-depends-on-migrations
 
 services:
 
-  web:
-    <<: *default
-    image: nginx:alpine
+  # reverse proxy, remove if you have your own
+  traefik:
+    image: traefik:v2.10
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - 80:80
+      - 443:443
     volumes:
-      - pretalx-public:/public
-      - type: bind
-        source: ./config/nginx.conf
-        target: /etc/nginx/nginx.conf
-        read_only: true
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /etc/portainer/pretalx/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+      - /etc/portainer/pretalx/traefik/dynamic:/etc/traefik/dynamic:ro
+      - /etc/portainer/pretalx/traefik/acme.json:/etc/traefik/acme.json
+    networks:
+      - web
+    restart: unless-stopped
     labels:
       traefik.enable: true
-      traefik.http.routers.local-localhost.rule: Host(`${FQDN}`)
-      traefik.http.routers.local-localhost.tls: true
-      traefik.http.routers.local-localhost.tls.certresolver: letsencrypt
-
-    deploy:
-      replicas: 1
-
-    healthcheck:
-      test: ['CMD-SHELL', 'ash -c "[[ $(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:80) == \"200\" ]]" || exit 1']
-      <<: *healthcheck
-
-    depends_on:
-      app:
-        condition: service_healthy
-
+      # Router for the dashboard
+      traefik.http.routers.dashboard.rule: Host(`${TRAEFIK_DASHBOARD_FQDN}`)
+      traefik.http.routers.dashboard.service: api@internal
+      traefik.http.routers.dashboard.tls: true
+      traefik.http.routers.dashboard.tls.certresolver: letsencrypt
+      traefik.http.routers.dashboard.middlewares: auth-middleware
+      traefik.http.middlewares.auth-middleware.basicauth.users: ${TRAEFIK_AUTH}
 
   app:
     <<: *pretalx
     command: gunicorn
+    labels:
+      traefik.enable: true
+      # Router for the application
+      traefik.http.routers.pretalx.rule: Host(`${FQDN}`)
+      traefik.http.routers.pretalx.tls: true
+      traefik.http.routers.pretalx.tls.certresolver: letsencrypt
+      traefik.http.routers.pretalx.middlewares: secureHeaders@file,rateLimit@file
+      traefik.http.services.pretalx.loadbalancer.server.port: 8080
+      # Static files router
+      traefik.http.routers.pretalx-static.rule: Host(`${FQDN}`) && (PathPrefix(`/static/`) || PathPrefix(`/media/`))
+      traefik.http.routers.pretalx-static.tls: true
+      traefik.http.routers.pretalx-static.tls.certresolver: letsencrypt
+      traefik.http.routers.pretalx-static.service: pretalx-static
+      traefik.http.services.pretalx-static.loadbalancer.server.port: 8080
+      # Add caching headers for static files
+      traefik.http.middlewares.static-headers.headers.customResponseHeaders.Cache-Control: "public,max-age=31536000"
+      traefik.http.routers.pretalx-static.middlewares: static-headers
+
+    networks:
+      - web
+      - data
+    volumes:
+      - data:/data
+      - public:/public
 
     deploy:
       replicas: 1
@@ -160,7 +186,7 @@ services:
       retries: 5
       timeout: 5s
     volumes:
-      - pretalx-postgres:/var/lib/postgresql/data
+      - postgres:/var/lib/postgresql/data
     env_file:
       - stack.env
     environment:
@@ -176,4 +202,4 @@ services:
       test: ['CMD-SHELL', 'redis-cli ping | grep PONG']
       <<: *healthcheck
     volumes:
-      - pretalx-redis:/data
+      - redis:/data
