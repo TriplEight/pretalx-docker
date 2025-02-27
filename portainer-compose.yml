@@ -107,11 +107,6 @@ services:
       traefik.http.middlewares.auth-middleware.basicauth.users: ${TRAEFIK_AUTH}
     env_file:
       - stack.env
-    environment:
-      - FQDN
-      - ACME_EMAIL
-      - TRAEFIK_DASHBOARD_FQDN
-      - TRAEFIK_AUTH
     deploy:
       replicas: 1
 
