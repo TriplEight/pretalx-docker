@@ -96,7 +96,7 @@ services:
     networks:
       web:
         aliases:
-          - traefik
+          - pretalx_web
     restart: unless-stopped
     labels:
       traefik.enable: true

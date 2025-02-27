@@ -38,8 +38,12 @@ certificatesResolvers:
     acme:
       email: "${ACME_EMAIL}"
       storage: /etc/traefik/acme.json
-      httpChallenge:
-        entryPoint: web
+      # Use DNS challenge instead of HTTP for better security
+      dnsChallenge:
+        provider: cloudflare
+        resolvers:
+          - "1.1.1.1:53"
+          - "8.8.8.8:53"
 
 log:
   level: INFO
