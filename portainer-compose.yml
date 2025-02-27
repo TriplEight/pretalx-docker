@@ -92,7 +92,6 @@ services:
       - 80:80
       - 443:443
     volumes:
-      - public:/public
       - /etc/localtime:/etc/localtime:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./config/traefik.yml:/etc/traefik/traefik.yml:ro
@@ -116,29 +115,45 @@ services:
     deploy:
       replicas: 1
 
+  web:
+    <<: *default
+    image: nginx:alpine
+    networks:
+      - web
+      - data
+    volumes:
+      - ./config/nginx.conf:/etc/nginx/nginx.conf:ro
+      - public:/public
+    deploy:
+      replicas: 1
+    healthcheck:
+      test: ['CMD-SHELL', 'ash -c "[[ $(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:80) == \"200\" ]]" || exit 1']
+      <<: *healthcheck
+    depends_on:
+      app:
+        condition: service_healthy
+    labels:
+      traefik.enable: true
+      traefik.http.routers.pretalx-static.rule: Host(`${FQDN}`) && (PathPrefix(`/static/`) || PathPrefix(`/media/`))
+      traefik.http.routers.pretalx-static.tls: true
+      traefik.http.routers.pretalx-static.tls.certresolver: letsencrypt
+      traefik.http.routers.pretalx-static.service: pretalx-static
+      traefik.http.services.pretalx-static.loadbalancer.server.port: 80
+      traefik.http.routers.pretalx-static.priority: 2
+
   app:
     <<: *pretalx
     command: gunicorn
     labels:
       traefik.enable: true
       # Main application router
-      traefik.http.routers.pretalx.rule: Host(`${FQDN}`) && !(PathPrefix(`/static/`) || PathPrefix(`/media/`))
+      traefik.http.routers.pretalx.rule: Host(`${FQDN}`)
       traefik.http.routers.pretalx.tls: true
       traefik.http.routers.pretalx.tls.certresolver: letsencrypt
       traefik.http.routers.pretalx.middlewares: secureHeaders@file,rateLimit@file
       traefik.http.routers.pretalx.service: pretalx
       traefik.http.services.pretalx.loadbalancer.server.port: 8080
 
-      # Static files router
-      traefik.http.routers.pretalx-static.rule: Host(`${FQDN}`) && (PathPrefix(`/static/`) || PathPrefix(`/media/`))
-      traefik.http.routers.pretalx-static.tls: true
-      traefik.http.routers.pretalx-static.tls.certresolver: letsencrypt
-      traefik.http.routers.pretalx-static.service: pretalx
-      traefik.http.routers.pretalx-static.middlewares: static-debug,static-headers@file,compression@file
-      traefik.http.routers.pretalx-static.priority: 2
-      # Debug middleware for static files
-      traefik.http.middlewares.static-debug.headers.customResponseHeaders.X-Debug-Path: "true"
-      
     networks:
       - web
       - data

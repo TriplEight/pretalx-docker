@@ -19,22 +19,3 @@ http:
       rateLimit:
         average: 100
         burst: 50
-    compression:
-      compress:
-        excludedContentTypes:
-          - image/png
-          - image/jpeg
-          - image/gif
-          - image/webp
-          - image/x-icon
-          - font/woff2
-          - font/woff
-    static-headers:
-      headers:
-        customResponseHeaders:
-          Cache-Control: "public,max-age=31536000"
-          X-Content-Type-Options: "nosniff"
-        accessControlAllowMethods:
-          - GET
-          - OPTIONS
-        accessControlMaxAge: 100
