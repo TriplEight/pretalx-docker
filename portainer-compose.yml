@@ -124,17 +124,20 @@ services:
       traefik.http.routers.pretalx.middlewares: secureHeaders@file,rateLimit@file
       traefik.http.services.pretalx.loadbalancer.server.port: 8080
 
-      # Static files router (higher priority)
-      traefik.http.routers.pretalx-static.priority: 2
-      traefik.http.routers.pretalx-static.rule: Host(`${FQDN}`) && (PathPrefix(`/static/`) || PathPrefix(`/media/`))
+      # Static files service and router
+      traefik.http.services.pretalx-static.loadbalancer.server.port: 8080
+      traefik.http.routers.pretalx-static.rule: Host(`${FQDN}`) && PathPrefix(`/static/`, `/media/`)
+      traefik.http.routers.pretalx-static.service: pretalx-static
       traefik.http.routers.pretalx-static.tls: true
       traefik.http.routers.pretalx-static.tls.certresolver: letsencrypt
-      traefik.http.routers.pretalx-static.service: pretalx
       traefik.http.routers.pretalx-static.middlewares: static-headers,compression@file
+      traefik.http.routers.pretalx-static.priority: 10
 
-      # Static files middleware
+      # Static files headers
       traefik.http.middlewares.static-headers.headers.customResponseHeaders.Cache-Control: "public,max-age=31536000"
       traefik.http.middlewares.static-headers.headers.customResponseHeaders.X-Content-Type-Options: "nosniff"
+      traefik.http.middlewares.static-headers.headers.accessControlAllowMethods: "GET,OPTIONS"
+      traefik.http.middlewares.static-headers.headers.accessControlMaxAge: "100"
       
     networks:
       - web
