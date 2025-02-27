@@ -118,7 +118,7 @@ services:
     labels:
       traefik.enable: true
       # Main application router
-      traefik.http.routers.pretalx.rule: Host(`${FQDN}`) && !PathPrefix(`/static/`, `/media/`)
+      traefik.http.routers.pretalx.rule: Host(`${FQDN}`) && !(PathPrefix(`/static/`) || PathPrefix(`/media/`))
       traefik.http.routers.pretalx.tls: true
       traefik.http.routers.pretalx.tls.certresolver: letsencrypt
       traefik.http.routers.pretalx.middlewares: secureHeaders@file,rateLimit@file
@@ -126,7 +126,7 @@ services:
       traefik.http.services.pretalx.loadbalancer.server.port: 8080
 
       # Static files router
-      traefik.http.routers.pretalx-static.rule: Host(`${FQDN}`) && PathPrefix(`/static/`, `/media/`)
+      traefik.http.routers.pretalx-static.rule: Host(`${FQDN}`) && (PathPrefix(`/static/`) || PathPrefix(`/media/`))
       traefik.http.routers.pretalx-static.tls: true
       traefik.http.routers.pretalx-static.tls.certresolver: letsencrypt
       traefik.http.routers.pretalx-static.service: pretalx
