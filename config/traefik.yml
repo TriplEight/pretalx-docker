@@ -42,6 +42,8 @@ certificatesResolvers:
         entryPoint: web
 
 log:
-  level: INFO
+  level: DEBUG  # Change from INFO to DEBUG
 
-accessLog: {}
+accessLog:
+  filePath: "/var/log/traefik/access.log"
+  format: json

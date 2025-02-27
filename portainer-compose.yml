@@ -134,8 +134,10 @@ services:
       traefik.http.routers.pretalx-static.tls: true
       traefik.http.routers.pretalx-static.tls.certresolver: letsencrypt
       traefik.http.routers.pretalx-static.service: pretalx
-      traefik.http.routers.pretalx-static.middlewares: static-headers@file,compression@file
+      traefik.http.routers.pretalx-static.middlewares: static-debug,static-headers@file,compression@file
       traefik.http.routers.pretalx-static.priority: 2
+      # Debug middleware for static files
+      traefik.http.middlewares.static-debug.headers.customResponseHeaders.X-Debug-Path: "true"
       
     networks:
       - web
