@@ -90,9 +90,9 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /etc/portainer/pretalx/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
-      - /etc/portainer/pretalx/traefik/dynamic:/etc/traefik/dynamic:ro
-      - /etc/portainer/pretalx/traefik/acme.json:/etc/traefik/acme.json
+      - ./config/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./config/dynamic:/etc/traefik/dynamic:ro
+      - ./config/acme.json:/etc/traefik/acme.json
     networks:
       - web
     restart: unless-stopped
@@ -105,6 +105,15 @@ services:
       traefik.http.routers.dashboard.tls.certresolver: letsencrypt
       traefik.http.routers.dashboard.middlewares: auth-middleware
       traefik.http.middlewares.auth-middleware.basicauth.users: ${TRAEFIK_AUTH}
+    env_file:
+      - stack.env
+    environment:
+      - FQDN
+      - ACME_EMAIL
+      - TRAEFIK_DASHBOARD_FQDN
+      - TRAEFIK_AUTH
+    deploy:
+      replicas: 1
 
   app:
     <<: *pretalx
