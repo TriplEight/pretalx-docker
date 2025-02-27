@@ -90,8 +90,8 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /etc/portainer/pretalx/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
-      - /etc/portainer/pretalx/traefik/dynamic:/etc/traefik/dynamic:ro
+      - ./config/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./config/dynamic:/etc/traefik/dynamic:ro
       - /etc/portainer/pretalx/traefik/acme.json:/etc/traefik/acme.json
     networks:
       web:
