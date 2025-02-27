@@ -81,7 +81,7 @@ services:
 
   # reverse proxy, remove if you have your own
   traefik:
-    image: traefik:v2.10
+    image: traefik:v3.3.4
     security_opt:
       - no-new-privileges:true
     ports:
