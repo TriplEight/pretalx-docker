@@ -127,7 +127,7 @@ services:
     deploy:
       replicas: 1
     healthcheck:
-      test: ['CMD-SHELL', 'ash -c "[[ $(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:80) == \"200\" ]]" || exit 1']
+      test: ['CMD-SHELL', 'ash -c "[[ $(curl -s -o /dev/null -w \"%{http_code}\" http://localhost/static) == \"200\" ]]" || exit 1']
       <<: *healthcheck
     depends_on:
       app:
