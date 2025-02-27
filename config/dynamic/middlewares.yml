@@ -19,3 +19,13 @@ http:
       rateLimit:
         average: 100
         burst: 50
+    compression:
+      compress:
+        excludedContentTypes:
+          - image/png
+          - image/jpeg
+          - image/gif
+          - image/webp
+          - image/x-icon
+          - font/woff2
+          - font/woff

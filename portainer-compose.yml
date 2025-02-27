@@ -132,7 +132,8 @@ services:
       traefik.http.services.pretalx-static-svc.loadbalancer.server.port: 8080
       # Add caching headers for static files
       traefik.http.middlewares.static-headers.headers.customResponseHeaders.Cache-Control: "public,max-age=31536000"
-      traefik.http.routers.pretalx-static.middlewares: static-headers
+      traefik.http.middlewares.static-headers.headers.customResponseHeaders.X-Content-Type-Options: "nosniff"
+      traefik.http.routers.pretalx-static.middlewares: static-headers,compression
 
     networks:
       - web
