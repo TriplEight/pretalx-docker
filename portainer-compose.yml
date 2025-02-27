@@ -117,24 +117,25 @@ services:
     command: gunicorn
     labels:
       traefik.enable: true
-      # Router for the application
+      # Main application router
       traefik.http.routers.pretalx.rule: Host(`${FQDN}`)
       traefik.http.routers.pretalx.tls: true
       traefik.http.routers.pretalx.tls.certresolver: letsencrypt
       traefik.http.routers.pretalx.middlewares: secureHeaders@file,rateLimit@file
-      traefik.http.services.pretalx-app.loadbalancer.server.port: 8080
-      traefik.http.routers.pretalx.service: pretalx-app
-      # Static files router
+      traefik.http.services.pretalx.loadbalancer.server.port: 8080
+
+      # Static files router (higher priority)
+      traefik.http.routers.pretalx-static.priority: 2
       traefik.http.routers.pretalx-static.rule: Host(`${FQDN}`) && (PathPrefix(`/static/`) || PathPrefix(`/media/`))
       traefik.http.routers.pretalx-static.tls: true
       traefik.http.routers.pretalx-static.tls.certresolver: letsencrypt
-      traefik.http.routers.pretalx-static.service: pretalx-static-svc
-      traefik.http.services.pretalx-static-svc.loadbalancer.server.port: 8080
-      # Add caching headers for static files
+      traefik.http.routers.pretalx-static.service: pretalx
+      traefik.http.routers.pretalx-static.middlewares: static-headers,compression@file
+
+      # Static files middleware
       traefik.http.middlewares.static-headers.headers.customResponseHeaders.Cache-Control: "public,max-age=31536000"
       traefik.http.middlewares.static-headers.headers.customResponseHeaders.X-Content-Type-Options: "nosniff"
-      traefik.http.routers.pretalx-static.middlewares: static-headers,compression
-
+      
     networks:
       - web
       - data
