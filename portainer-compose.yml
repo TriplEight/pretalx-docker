@@ -125,13 +125,14 @@ services:
       traefik.http.routers.pretalx.tls: true
       traefik.http.routers.pretalx.tls.certresolver: letsencrypt
       traefik.http.routers.pretalx.middlewares: secureHeaders@file,rateLimit@file
-      traefik.http.services.pretalx.loadbalancer.server.port: 8080
+      traefik.http.services.pretalx-app.loadbalancer.server.port: 8080
+      traefik.http.routers.pretalx.service: pretalx-app
       # Static files router
       traefik.http.routers.pretalx-static.rule: Host(`${FQDN}`) && (PathPrefix(`/static/`) || PathPrefix(`/media/`))
       traefik.http.routers.pretalx-static.tls: true
       traefik.http.routers.pretalx-static.tls.certresolver: letsencrypt
-      traefik.http.routers.pretalx-static.service: pretalx-static
-      traefik.http.services.pretalx-static.loadbalancer.server.port: 8080
+      traefik.http.routers.pretalx-static.service: pretalx-static-svc
+      traefik.http.services.pretalx-static-svc.loadbalancer.server.port: 8080
       # Add caching headers for static files
       traefik.http.middlewares.static-headers.headers.customResponseHeaders.Cache-Control: "public,max-age=31536000"
       traefik.http.routers.pretalx-static.middlewares: static-headers
