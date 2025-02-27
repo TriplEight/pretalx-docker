@@ -1,15 +1,19 @@
 # Make sure to follow the steps in the README.md file to configure the environment variables
 # and the traefik configuration files before running this stack.
 
+name: pretalx
+
+networks:
+  data:
+    name: pretalx_data
+  web:
+    name: pretalx_web
+
 volumes:
   public:
   data:
   postgres:
   redis:
-
-networks:
-  data:
-  web:
 
 x-default: &default
   networks:
