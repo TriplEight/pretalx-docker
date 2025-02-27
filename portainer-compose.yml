@@ -29,7 +29,7 @@ x-pretalx: &pretalx
     - data:/data
     - public:/public
   env_file:
-    - stack.env
+    - ./config/stack.env
   environment:
     - PRETALX_LOG_LEVEL
     - PRETALX_DB_NAME
@@ -106,7 +106,7 @@ services:
       traefik.http.routers.dashboard.middlewares: auth-middleware
       traefik.http.middlewares.auth-middleware.basicauth.users: ${TRAEFIK_AUTH}
     env_file:
-      - stack.env
+      - ./config/stack.env
     environment:
       - FQDN
       - ACME_EMAIL
@@ -197,7 +197,7 @@ services:
     volumes:
       - postgres:/var/lib/postgresql/data
     env_file:
-      - stack.env
+      - ./config/stack.env
     environment:
       - POSTGRES_PASSWORD
       - POSTGRES_USER
