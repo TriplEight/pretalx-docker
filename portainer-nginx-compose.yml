@@ -6,10 +6,13 @@ volumes:
 
 networks:
   data:
+  pretalx-web:
+    external: true
 
 x-default: &default
   networks:
     - data
+    - pretalx-web
   restart: unless-stopped
 
 x-healthcheck: &healthcheck
@@ -87,10 +90,6 @@ services:
       traefik.http.routers.local-localhost.tls: true
       traefik.http.routers.local-localhost.tls.certresolver: letsencrypt
     
-    ports:
-      - 80:80
-      - 443:443
-
     deploy:
       replicas: 1
 
