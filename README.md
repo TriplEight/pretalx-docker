@@ -486,6 +486,7 @@ Notes/Further TODO:
   Traefik uses other forms of variable substitution.
 - dummy `stack.env` (don't use it) was created after portainer toggle with `Enable relative path volumes` (you can also skip using it) complained it's absent.
 - `external: true` might be extra on pretalx-web network
+- healthchecks could be better
 
 ---
 
