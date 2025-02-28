@@ -29,7 +29,7 @@ providers:
     exposedByDefault: false
     network: pretalx-web
   file:
-    directory: /etc/traefik/config
+    directory: /etc/traefik/dynamic
     watch: true
 
 certificatesResolvers:
