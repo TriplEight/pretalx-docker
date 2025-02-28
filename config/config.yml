@@ -13,11 +13,11 @@ http:
       rule: "Host(`${TRAEFIK_DASHBOARD_FQDN}`)"
       service: api@internal
       entryPoints:
-        - web
+        - websecure
       tls:
         certResolver: letsencrypt
       middlewares:
-        - auth
+        - auth-middleware
 
   services:
     pretalx-service:
@@ -40,7 +40,7 @@ http:
         frameDeny: true
         referrerPolicy: "strict-origin-when-cross-origin"
         permissionsPolicy: "camera=(), microphone=(), geolocation=()"
-    auth:
+    auth-middleware:
       basicAuth:
         removeHeader: true
         users:
