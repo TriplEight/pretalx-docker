@@ -462,6 +462,21 @@ docker compose -f compose.yml -f compose/traefik.yml --env-file .env.build -f co
 
 > - *Continue* to **Initialisation** below.
 
+### Portainer deployment
+
+fire-and-forget: the config includes reverse proxy, make sure you want it, otherwise remove it from `portainer-compose.yml`
+
+1. TODO: Build the images using `build-and-push` CI workflow with the following parameters:
+1. `cp .env.example stack.env`
+3. copy traefik config files to a place where they will be accessible `sudo config/traefik-config.sh`
+4. add your certificate `sudo nano /etc/portainer/pretalx/traefik/acme.json`
+5. Check if port 443 is allowed by firewall
+2. edit `stack.env` with your data, the file will not be mounted to the stack!
+3. in Portainer -> create stack interface add env variables from `stack.env`
+6. deploy the stack
+
+1. TODO: init pretalx
+
 ---
 
 ### Management commands
