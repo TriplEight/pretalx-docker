@@ -7,7 +7,8 @@ function error {
 
 echo "Creating directories"
 rm -rf /etc/portainer/pretalx/traefik/configs || error "Failed to remove old traefik folder!"
-mkdir -p /etc/portainer/pretalx/traefik/configs || error "Failed to create traefik folder!"
+mkdir -p /etc/portainer/pretalx/traefik/configs || error "Failed to create configs folder!"
+mkdir -p /etc/portainer/pretalx/traefik/cert || error "Failed to create cert folder!"
 
 echo "Creating traefik config files"
 
