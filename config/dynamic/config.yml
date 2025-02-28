@@ -1,13 +1,23 @@
 # traefik config
+
 http:
   routers:
     pretalx:
-      rule: "Host(`${FQDN}`)"
+      rule: "Host(`${PRETALX_FQDN}`)"
       service: pretalx-service
       entryPoints:
         - web
       tls:
         certResolver: letsencrypt
+    dashboard:
+      rule: "Host(`${TRAEFIK_DASHBOARD_FQDN}`)"
+      service: api@internal
+      entryPoints:
+        - web
+      tls:
+        certResolver: letsencrypt
+      middlewares:
+        - auth
 
   services:
     pretalx-service:
