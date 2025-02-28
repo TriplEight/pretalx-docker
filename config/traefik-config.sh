@@ -6,12 +6,17 @@ function error {
 }
 
 echo "Creating directories"
-mkdir -p /etc/portainer/pretalx/traefik/dynamic || error "Failed to create traefik folder!"
+mkdir -p /etc/portainer/pretalx/traefik || error "Failed to create traefik folder!"
 echo "Creating traefik config files"
 
-# cp config/traefik.yml /etc/portainer/pretalx/traefik/traefik.yml || error "Failed to create traefik route config!"
-# cp config/config.yml /etc/portainer/pretalx/traefik/config.yml || error "Failed to create traefik config!"
+cp config/traefik.yml /etc/portainer/pretalx/traefik/traefik.yml || error "Failed to create traefik config!"
+cp config/config.yml /etc/portainer/pretalx/traefik/config.yml || error "Failed to create traefik config!"
+cp config/nginx.conf /etc/portainer/pretalx/traefik/nginx.conf || error "Failed to create nginx config!"
 touch /etc/portainer/pretalx/traefik/acme.json || error "Failed to create traefik certificate storage!"
 chmod 600 /etc/portainer/pretalx/traefik/acme.json
 
-echo "Traefik configs are in place. Now add your certificates to /etc/portainer/pretalx/traefik/acme.json"
+echo "Traefik configs are in place. Now"
+echo "- edit /etc/portainer/pretalx/traefik/traefik.yml and substitute variables manually"
+echo "- edit /etc/portainer/pretalx/traefik/config.yml and substitute variables manually"
+echo "- edit /etc/portainer/pretalx/traefik/nginx.conf and substitute variables manually"
+echo "- add your certificates to /etc/portainer/pretalx/traefik/acme.json"
