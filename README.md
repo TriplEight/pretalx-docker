@@ -485,6 +485,7 @@ Notes/Further TODO:
   Nginx allows using `nginx.conf.template` file in `/etc/nginx/templates/` but then conflicts with that config.
   Traefik uses other forms of variable substitution.
 - dummy `stack.env` (don't use it) was created after portainer toggle with `Enable relative path volumes` (you can also skip using it) complained it's absent.
+- `external: true` might be extra on pretalx-web network
 
 ---
 
