@@ -78,12 +78,31 @@ x-pretalx-depends-on-migrations: &pretalx-depends-on-migrations
 
 services:
 
+  traefik:
+    <<: *default
+    image: traefik:v3.3.4
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./config/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./config/config.yml:/etc/traefik/config.yml:ro
+      - /etc/portainer/pretalx/traefik/acme.json:/etc/traefik/acme.json
+    env_file:
+      - stack.env
+    deploy:
+      replicas: 1
+
   web:
     <<: *default
     image: nginx:alpine
     volumes:
       - public:/public
-      - ./config/nginx-old.conf:/etc/nginx/nginx.conf:ro
+      - ./config/nginx.conf.template:/etc/nginx/templates/nginx.conf.template
     labels:
       traefik.enable: true
       traefik.http.routers.local-localhost.rule: Host(`${FQDN}`)

@@ -3,7 +3,7 @@
 http:
   routers:
     pretalx:
-      rule: "Host(`${PRETALX_FQDN}`)"
+      rule: "Host(`${FQDN}`)"
       service: pretalx-service
       entryPoints:
         - web

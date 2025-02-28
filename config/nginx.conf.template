@@ -1,7 +1,3 @@
-events {
-  worker_connections 768;
-}
-
 http {
   server_tokens off;
   sendfile on;
@@ -26,8 +22,7 @@ http {
 
   server {
     listen 80;
-
-    server_name agenda.sub0.gg;
+    server_name ${FQDN};
 
     index index.html;
     root /public;
@@ -43,13 +38,11 @@ http {
       add_header Cache-Control "public";
     }
 
-    location / {
-      proxy_set_header Host $host;
-      proxy_set_header X-Real-IP $remote_addr;
-      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-      proxy_set_header X-Forwarded-Proto https;
-
-      proxy_pass http://app:8080;
+    # Health check for Traefik
+    location /ping {
+        access_log off;
+        add_header Content-Type text/plain;
+        return 200 'OK';
     }
   }
 }
