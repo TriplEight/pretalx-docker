@@ -1,11 +1,14 @@
 services:
   app: &build-extended-cron
+    # ghcr.io/tripleight/pretalx-extended:2024.3.0-cron
     image: ${PRETALX_EXTENDED_CRON_IMAGE}:${PRETALX_EXTENDED_CRON_TAG}
     build:
       context: ./context/cron
       dockerfile: Dockerfile.debian
       args:
+        # ghcr.io/tripleight/pretalx-extended
         PRETALX_BASE_IMAGE: ${PRETALX_EXTENDED_CRON_BASE_IMAGE}
+        # 2024.3.0
         PRETALX_BASE_TAG: ${PRETALX_EXTENDED_CRON_BASE_TAG}
   worker: *build-extended-cron
   cron: *build-extended-cron

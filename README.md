@@ -462,6 +462,32 @@ docker compose --env-file .env -f compose.yml -f compose/traefik.yml --env-file 
 
 > - *Continue* to **Initialisation** below.
 
+### Portainer deployment
+
+The config includes Traefik reverse proxy. Make sure you want it, otherwise remove it from `portainer-compose.yml`
+
+1. Build the images using `build-and-push` [CI workflow](https://github.com/TriplEight/pretalx-docker/actions/workflows/build.all.yml) -> Run workflow with the following parameters:
+  - Mandatory name of the image to build, string: `pretalx-extended`
+  - Additional image tags, takes a YAML multiline string: [PRETALX-VERSION]-cron
+  - Toggle to disable Docker Hub Registry: Remove the tick 
+2. `git clone https://github.com/TriplEight/pretalx-docker`, `cd pretalx-docker`
+3. `sudo config/traefik-config.sh` and edit these files as mentioned in the script output
+4. Check if port 443 is allowed by firewall
+5. in Portainer -> create stack -> repository. Input this repo URL, optionally your branch and compose path: `portainer-compose.yml`
+6. add env variables from `.env.example` with your values
+7. deploy the stack
+8. use portainer UI or `docker exec [traefik-container-name] python -m pretalx init`
+
+Notes/Further TODO:
+- Traefik can't host the web static so can't fully substitute nginx here. The setup would be simpler with less services.
+- it's unclear how, but it would 404 without the `location / {` section in `nginx.conf`
+- automate variables substitution instead of a manual process with config/traefik-config.sh.
+  Nginx allows using `nginx.conf.template` file in `/etc/nginx/templates/` but then conflicts with that config.
+  Traefik uses other forms of variable substitution.
+- dummy `stack.env` (don't use it) was created after portainer toggle with `Enable relative path volumes` (you can also skip using it) complained it's absent.
+- `external: true` might be extra on pretalx-web network
+- healthchecks could be better
+
 ---
 
 ### Management commands

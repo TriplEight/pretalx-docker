@@ -1,0 +1,47 @@
+# traefik config
+
+http:
+  routers:
+    pretalx:
+      rule: "Host(`${FQDN}`)"
+      service: pretalx-service
+      entryPoints:
+        - web
+      tls:
+        certResolver: letsencrypt
+    dashboard:
+      rule: "Host(`${TRAEFIK_DASHBOARD_FQDN}`)"
+      service: api@internal
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+      middlewares:
+        - auth-middleware
+
+  services:
+    pretalx-service:
+      loadBalancer:
+        servers:
+          - url: "http://app:8080"
+
+  middlewares:
+    secureHeaders:
+      headers:
+        customRequestHeaders:
+          X-Content-Type-Options: nosniff
+          Referrer-Policy: same-origin
+        sslRedirect: true
+        forceSTSHeader: true
+        stsIncludeSubdomains: true
+        stsPreload: true
+        stsSeconds: 31536000
+        contentTypeNosniff: true
+        frameDeny: true
+        referrerPolicy: "strict-origin-when-cross-origin"
+        permissionsPolicy: "camera=(), microphone=(), geolocation=()"
+    auth-middleware:
+      basicAuth:
+        removeHeader: true
+        users:
+          - ${TRAEFIK_AUTH}
