@@ -98,9 +98,9 @@ GitHub Actions workflows to build the images in CI.
 Scripts to perfom bulk operations on the repository.
 
 - `clean`, removes generated data, including built images and an eventual clone of pretalx for the local source overlay
-- `build`, builds the `pretalx/base:3.12-bookworm`, `pretalx/pretalx:2024.1.0`, `pretalx/pretalx-extended:2024.1.0` and `pretalx/pretalx-extended:2024.1.0-cron` images
+- `build`, builds the `pretalx/base:3.12-bookworm`, `pretalx/pretalx:2024.3.0`, `pretalx/pretalx-extended:2024.3.0` and `pretalx/pretalx-extended:2024.3.0-cron` images
 - `build.source`, builds the `pretalx/base:3.12-bookworm`, `pretalx/pretalx-extended:main-source-remote-cron`, `pretalx/standalone:main-source-{local,remote}` and `pretalx/standalone-extended:main-source-remote-cron` images
-- `build.standalone`, builds the `pretalx/pretalx:2024.1.0`, `pretalx/standalone:2024.1.0` and `pretalx/standalone-extended:2024.1.0{,-cron}` images
+- `build.standalone`, builds the `pretalx/pretalx:2024.3.0`, `pretalx/standalone:2024.3.0` and `pretalx/standalone-extended:2024.3.0{,-cron}` images
 
 #### compose/
 
@@ -451,13 +451,13 @@ This further assumes the presence of a fully configured `traefik` instance conne
 Review the configuration you are about to launch:
 
 ```sh
-docker compose -f compose.yml -f compose/traefik.yml config
+docker compose --env-file .env -f compose.yml -f compose/traefik.yml --env-file .env.build -f compose/build/extended.cron.yml config
 ```
 
 Launch a selected configuration:
 
 ```sh
-docker compose -f compose.yml -f compose/traefik.yml --env-file .env.build -f compose/build/extended.yml up -d
+docker compose --env-file .env -f compose.yml -f compose/traefik.yml --env-file .env.build -f compose/build/extended.cron.yml up -d
 ```
 
 > - *Continue* to **Initialisation** below.
@@ -528,7 +528,7 @@ You will see this configuration summary and the initialisation wizard:
 
 ```console
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃ ┏━━━━━━━━━━┓  pretalx v2024.1.0                                                 ┃
+┃ ┏━━━━━━━━━━┓  pretalx v2024.3.0                                                 ┃
 ┃ ┃  ┌─·──╮  ┃  Settings:                                                         ┃
 ┃ ┃  │  O │  ┃  Database:  pretalx (postgresql)                                   ┃
 ┃ ┃  │ ┌──╯  ┃  Logging:   /data/logs                                             ┃

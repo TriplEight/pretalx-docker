@@ -1,13 +1,63 @@
 networks:
-  web:
+  web-2024.3.0:
+    # Traefik is running in the same network as the app
+    # this network might be started before the app network
+    # so we need to explicitly set external: true
     external: true
 
 services:
   web:
     networks:
-      - web
+      - web-2024.3.0
+      - data-2024.3.0
     labels:
-      traefik.enable: true
-      traefik.http.routers.local-localhost.rule: Host(`${FQDN}`)
-      traefik.http.routers.local-localhost.tls: true
-      traefik.http.routers.local-localhost.tls.certresolver: letsencrypt
+      - traefik.enable=true
+      - traefik.docker.network=web-2024.3.0
+      - traefik.http.routers.pretalx-prod.rule=Host(`${FQDN}`)
+      - traefik.http.routers.pretalx-prod.entrypoints=websecure
+      - traefik.http.routers.pretalx-prod.tls=true
+      - traefik.http.routers.pretalx-prod.tls.certresolver=letsencrypt
+      - traefik.http.services.pretalx-prod.loadbalancer.server.port=80
+      - traefik.http.routers.pretalx-prod.middlewares=secure-headers@file
+
+  traefik:
+    image: docker.io/library/traefik:v3.1.6
+    networks:
+      - web-2024.3.0
+    depends_on:
+      - web
+    command:
+      - "--log.level=INFO"
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.file.filename=/etc/traefik/traefik_dynamic.yml"
+      - "--providers.file.watch=true"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.traefik.address=:8080"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL}"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+      - "--accesslog=true"
+      - "--accesslog.filepath=/var/log/traefik/access.log"
+      # STAGING
+      #- "--certificatesresolvers.letsencrypt.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./letsencrypt:/letsencrypt
+      - ./config/traefik_dynamic.yml:/etc/traefik/traefik_dynamic.yml:ro
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.dashboard-prod.rule=Host(`traefik.${FQDN}`)
+      - traefik.http.routers.dashboard-prod.service=api@internal
+      - traefik.http.routers.dashboard-prod.entrypoints=websecure
+      - traefik.http.routers.dashboard-prod.tls=true
+      - traefik.http.routers.dashboard-prod.tls.certresolver=letsencrypt
+      - traefik.http.routers.dashboard-prod.middlewares=auth
+      - traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_AUTH}
